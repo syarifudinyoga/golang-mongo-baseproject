@@ -2,9 +2,12 @@ package config
 
 import (
 	"context"
+	"fmt"
 	"log"
+	"os"
 	"time"
 
+	"github.com/joho/godotenv"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -12,7 +15,11 @@ import (
 var DB *mongo.Client
 
 func ConnectDB() {
-	client, err := mongo.NewClient(options.Client().ApplyURI("mongodb://localhost:27017"))
+	if err := godotenv.Load(); err != nil {
+		fmt.Println("Error loading .env file")
+	}
+
+	client, err := mongo.NewClient(options.Client().ApplyURI(os.Getenv("URL_DB")))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -30,5 +37,8 @@ func ConnectDB() {
 }
 
 func GetCollection(collectionName string) *mongo.Collection {
-	return DB.Database("golang_mongodb").Collection(collectionName)
+	if err := godotenv.Load(); err != nil {
+		fmt.Println("Error loading .env file")
+	}
+	return DB.Database(os.Getenv("COLLECTION_DB")).Collection(collectionName)
 }

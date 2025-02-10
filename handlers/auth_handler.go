@@ -2,13 +2,18 @@ package handlers
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"net/http"
+	"os"
 
 	"golang-mongodb/config"
 	"golang-mongodb/models"
 	"golang-mongodb/utils"
 
 	"github.com/gin-gonic/gin"
+	"github.com/go-playground/validator/v10"
+	"github.com/joho/godotenv"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"golang.org/x/crypto/bcrypt"
@@ -23,9 +28,22 @@ import (
 // @Param request body models.UserRegis true "User Data"
 // @Router /auth/register [post]
 func Register(c *gin.Context) {
+	if err := godotenv.Load(); err != nil {
+		fmt.Println("Error loading .env file")
+	}
 	var user models.UserRegis
 	if err := c.ShouldBindJSON(&user); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		// Ambil error dari validator
+		var ve validator.ValidationErrors
+		if errors.As(err, &ve) {
+			errorMessages := make(map[string]string)
+			for _, fe := range ve {
+				errorMessages[fe.Field()] = models.GetErrorMessage(fe)
+			}
+			c.JSON(http.StatusBadRequest, gin.H{"errors": errorMessages})
+			return
+		}
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid input"})
 		return
 	}
 
@@ -37,7 +55,7 @@ func Register(c *gin.Context) {
 	if user.Role == "" {
 		user.Role = "peserta"
 	}
-	_, err := config.GetCollection("baseproject").InsertOne(context.TODO(), user)
+	_, err := config.GetCollection(os.Getenv("COLLECTION_DB")).InsertOne(context.TODO(), user)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create user"})
 		return
@@ -55,14 +73,27 @@ func Register(c *gin.Context) {
 // @Param request body models.UserLogin true "User Login"
 // @Router /auth/login [post]
 func Login(c *gin.Context) {
+	if err := godotenv.Load(); err != nil {
+		fmt.Println("Error loading .env file")
+	}
 	var input models.UserLogin
 	if err := c.ShouldBindJSON(&input); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		// Ambil error dari validator
+		var ve validator.ValidationErrors
+		if errors.As(err, &ve) {
+			errorMessages := make(map[string]string)
+			for _, fe := range ve {
+				errorMessages[fe.Field()] = models.GetErrorMessage(fe)
+			}
+			c.JSON(http.StatusBadRequest, gin.H{"errors": errorMessages})
+			return
+		}
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid input"})
 		return
 	}
 
 	var user models.UserLogin
-	err := config.GetCollection("baseproject").FindOne(context.TODO(), bson.M{"email": input.Email}).Decode(&user)
+	err := config.GetCollection(os.Getenv("COLLECTION_DB")).FindOne(context.TODO(), bson.M{"email": input.Email}).Decode(&user)
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid email"})
 		return
