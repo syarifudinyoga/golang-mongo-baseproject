@@ -47,6 +47,14 @@ func Register(c *gin.Context) {
 		return
 	}
 
+	var existingUser models.UserRegis
+	err0 := config.GetCollection(os.Getenv("COLLECTION_USER")).FindOne(context.TODO(), bson.M{"email": user.Email}).Decode(&existingUser)
+	if err0 == nil {
+		// Jika tidak ada error, berarti email sudah ada
+		c.JSON(http.StatusConflict, gin.H{"error": "Email sudah terdaftar"})
+		return
+	}
+
 	hashedPassword, _ := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
 	user.Password = string(hashedPassword)
 
@@ -55,7 +63,7 @@ func Register(c *gin.Context) {
 	if user.Role == "" {
 		user.Role = "peserta"
 	}
-	_, err := config.GetCollection(os.Getenv("COLLECTION_DB")).InsertOne(context.TODO(), user)
+	_, err := config.GetCollection(os.Getenv("COLLECTION_USER")).InsertOne(context.TODO(), user)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create user"})
 		return
@@ -93,7 +101,7 @@ func Login(c *gin.Context) {
 	}
 
 	var user models.UserLogin
-	err := config.GetCollection(os.Getenv("COLLECTION_DB")).FindOne(context.TODO(), bson.M{"email": input.Email}).Decode(&user)
+	err := config.GetCollection(os.Getenv("COLLECTION_USER")).FindOne(context.TODO(), bson.M{"email": input.Email}).Decode(&user)
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid email"})
 		return
