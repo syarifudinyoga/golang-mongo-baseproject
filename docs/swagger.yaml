@@ -67,4 +67,48 @@ paths:
       summary: Register user
       tags:
       - Auth
+  /users:
+    get:
+      description: Mendapatkan semua data user
+      produces:
+      - application/json
+      responses: {}
+      summary: Get all users
+      tags:
+      - Users
+  /users/{id}:
+    delete:
+      description: Menghapus data user berdasarkan ID
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      responses: {}
+      summary: Delete user
+      tags:
+      - Users
+    put:
+      consumes:
+      - application/json
+      description: Memperbarui data user berdasarkan ID
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: User Data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.UserRegis'
+      produces:
+      - application/json
+      responses: {}
+      summary: Update user
+      tags:
+      - Users
 swagger: "2.0"

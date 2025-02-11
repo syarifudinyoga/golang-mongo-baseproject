@@ -25,7 +25,7 @@ func main() {
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	// Routes
-	routes.AuthRoutes(r)
+	routes.RoutesGo(r)
 
 	r.Run(":8080")
 }
