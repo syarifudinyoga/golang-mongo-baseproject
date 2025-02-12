@@ -1,7 +1,7 @@
 {
     "swagger": "2.0",
     "info": {
-        "description": "API untuk autentikasi dengan JWT menggunakan MongoDB",
+        "description": "API untuk MongoDB JWT User",
         "title": "Golang JWT Authentication API",
         "contact": {},
         "version": "1.0"
@@ -65,6 +65,11 @@
         },
         "/users": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Mendapatkan semua data user",
                 "produces": [
                     "application/json"
@@ -78,6 +83,11 @@
         },
         "/users/{id}": {
             "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Memperbarui data user berdasarkan ID",
                 "consumes": [
                     "application/json"
@@ -110,6 +120,11 @@
                 "responses": {}
             },
             "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Menghapus data user berdasarkan ID",
                 "tags": [
                     "Users"
@@ -164,6 +179,13 @@
                     "type": "string"
                 }
             }
+        }
+    },
+    "securityDefinitions": {
+        "BearerAuth": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
         }
     }
 }

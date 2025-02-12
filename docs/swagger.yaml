@@ -27,7 +27,7 @@ definitions:
 host: localhost:8080
 info:
   contact: {}
-  description: API untuk autentikasi dengan JWT menggunakan MongoDB
+  description: API untuk MongoDB JWT User
   title: Golang JWT Authentication API
   version: "1.0"
 paths:
@@ -73,6 +73,8 @@ paths:
       produces:
       - application/json
       responses: {}
+      security:
+      - BearerAuth: []
       summary: Get all users
       tags:
       - Users
@@ -86,6 +88,8 @@ paths:
         required: true
         type: string
       responses: {}
+      security:
+      - BearerAuth: []
       summary: Delete user
       tags:
       - Users
@@ -108,7 +112,14 @@ paths:
       produces:
       - application/json
       responses: {}
+      security:
+      - BearerAuth: []
       summary: Update user
       tags:
       - Users
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
 swagger: "2.0"

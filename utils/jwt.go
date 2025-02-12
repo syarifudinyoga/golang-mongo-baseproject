@@ -28,6 +28,44 @@ func GenerateToken(userID string) (string, error) {
 	return token.SignedString(jwtKey)
 }
 
+func AuthMiddleware(jwtSecret []byte) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		authHeader := c.GetHeader("Authorization")
+		if authHeader == "" {
+			// Token tidak ada, kirim error dan hentikan proses
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Authorization token not provided"})
+			c.Abort() // Hentikan eksekusi lebih lanjut
+			return
+		}
+
+		// Pisahkan Bearer dari token
+		tokenString := strings.TrimPrefix(authHeader, "Bearer ")
+		if tokenString == authHeader { // Artinya tidak ada "Bearer" dalam header
+			// Format token salah, kirim error dan hentikan proses
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token format"})
+			c.Abort() // Hentikan eksekusi lebih lanjut
+			return
+		}
+
+		// Verifikasi token
+		token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+				return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+			}
+			return jwtSecret, nil
+		})
+
+		if err != nil || !token.Valid {
+			// Token tidak valid, kirim error dan hentikan proses
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token"})
+			c.Abort() // Hentikan eksekusi lebih lanjut
+			return
+		}
+
+		c.Next() // Jika token valid, lanjutkan ke handler berikutnya
+	}
+}
+
 func AdminLevel() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		if err := godotenv.Load(); err != nil {

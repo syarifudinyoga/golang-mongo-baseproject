@@ -2,19 +2,13 @@ package handlers
 
 import (
 	"context"
-	// "errors"
-	// "fmt"
 	"net/http"
 	"os"
 
 	"golang-mongodb/config"
 	"golang-mongodb/models"
 
-	// "golang-mongodb/utils"
-
 	"github.com/gin-gonic/gin"
-	// "github.com/go-playground/validator/v10"
-	// "github.com/joho/godotenv"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"golang.org/x/crypto/bcrypt"
@@ -25,6 +19,7 @@ import (
 // @Description Mendapatkan semua data user
 // @Tags Users
 // @Produce json
+// @Security BearerAuth
 // @Router /users [get]
 func GetAllUsers(c *gin.Context) {
 	var users []models.UserRegis
@@ -43,7 +38,7 @@ func GetAllUsers(c *gin.Context) {
 		users = append(users, user)
 	}
 
-	// c.JSON(http.StatusOK, gin.H{"users": users})
+	// Kirim data users hanya jika token valid
 	c.JSON(http.StatusOK, users)
 }
 
@@ -55,6 +50,7 @@ func GetAllUsers(c *gin.Context) {
 // @Produce json
 // @Param id path string true "User ID"
 // @Param request body models.UserRegis true "User Data"
+// @Security BearerAuth
 // @Router /users/{id} [put]
 func UpdateUser(c *gin.Context) {
 	id := c.Param("id")
@@ -97,6 +93,7 @@ func UpdateUser(c *gin.Context) {
 // @Description Menghapus data user berdasarkan ID
 // @Tags Users
 // @Param id path string true "User ID"
+// @Security BearerAuth
 // @Router /users/{id} [delete]
 func DeleteUser(c *gin.Context) {
 	id := c.Param("id")

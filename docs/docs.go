@@ -71,6 +71,11 @@ const docTemplate = `{
         },
         "/users": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Mendapatkan semua data user",
                 "produces": [
                     "application/json"
@@ -84,6 +89,11 @@ const docTemplate = `{
         },
         "/users/{id}": {
             "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Memperbarui data user berdasarkan ID",
                 "consumes": [
                     "application/json"
@@ -116,6 +126,11 @@ const docTemplate = `{
                 "responses": {}
             },
             "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Menghapus data user berdasarkan ID",
                 "tags": [
                     "Users"
@@ -171,6 +186,13 @@ const docTemplate = `{
                 }
             }
         }
+    },
+    "securityDefinitions": {
+        "BearerAuth": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
+        }
     }
 }`
 
@@ -181,7 +203,7 @@ var SwaggerInfo = &swag.Spec{
 	BasePath:         "/",
 	Schemes:          []string{},
 	Title:            "Golang JWT Authentication API",
-	Description:      "API untuk autentikasi dengan JWT menggunakan MongoDB",
+	Description:      "API untuk MongoDB JWT User",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 	LeftDelim:        "{{",
